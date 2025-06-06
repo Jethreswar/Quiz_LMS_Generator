@@ -65,14 +65,14 @@ def admin_view(request):
             # Try to detect if it's a JSON string (from older data)
             if question.course.startswith('[') and question.course.endswith(']'):
                 try:
+                    pass  # TODO: Add code or remove this try block
+                except Exception:
+                    pass
+                    pass  # TODO: Add your logic here or remove the try block if not needed
+                except Exception:
+                    pass
                     import json
                     parsed_courses = json.loads(question.course)
-                    if isinstance(parsed_courses, list):
-                        for course in parsed_courses:
-                            if course:  # Skip empty entries
-                                distinct_courses.add(course.strip())
-                    else:
-                        distinct_courses.add(str(parsed_courses).strip())
                 except:
                     # If JSON parsing fails, add as is
                     distinct_courses.add(question.course.strip())
@@ -3617,6 +3617,10 @@ def admin_view(request):
         # If it looks like JSON, parse it for display purposes
         if isinstance(question.course, str) and question.course.startswith('['):
             try:
+    for question in questions:
+        # If it looks like JSON, parse it for display purposes
+        if isinstance(question.course, str) and question.course.startswith('['):
+            try:
                 import json
                 courses = json.loads(question.course)
                 if isinstance(courses, list):
@@ -3724,13 +3728,12 @@ def create_quiz(request):
         student_courses = []
         if isinstance(student.courses, str):
             try:
-            try:
                 import json
-                user_courses = json.loads(user.courses)
+                student_courses = json.loads(student.courses)
             except:
-                user_courses = []
+                student_courses = []
         else:
-            user_courses = user.courses
+            student_courses = student.courses
     
     # Get quiz history
     quiz_history = QuizHistory.objects.filter(quiz__student=user).order_by('-quiz_date')
