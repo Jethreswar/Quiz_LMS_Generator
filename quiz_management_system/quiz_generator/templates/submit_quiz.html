@@ -1,0 +1,15 @@
+{% extends "base.html" %} 
+
+{% block content %}
+    <h2>Quiz Submission</h2>
+    <p>Your quiz has been submitted. Here are the results:</p>
+
+    <p>Score: {{ score }}%</p>
+    <p>Number of Correct Answers: {{ num_correct }}</p>
+    <p>Number of Wrong Answers: {{ num_wrong }}</p>
+    <p>Quiz Date: {{ quiz_date }}</p>
+
+    <!-- You can add more details or customize the presentation as needed -->
+
+    <p><a href="{% url 'user_view' %}">Go to User Page</a></p>
+{% endblock content %}

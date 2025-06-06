@@ -1,0 +1,58 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-right">
+        <a href="{% url 'logout' %}" class="btn btn-info">
+            <span class="glyphicon glyphicon-log-out"></span> Log out
+        </a>
+    </div> 
+    <br />
+        <div class="card mb-4">
+            <div class="card-header" style="background-color: #00AA9E;">
+                <h2 class="display-10">Modify Question:</h2>
+            </div>
+            <div class="card-body">
+                    <form method="post" action="{% url 'modify_question' question_id=question.id %}">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <!-- Display the selected question, options, and correct answer -->
+                            <div class="form-group col-md-3">
+                                <label for="question">Question:</label>
+                                <input type="text" class="form-control" id="question" name="question" value="{{ question.question }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="option1">Option 1:</label>
+                                <input type="text" class="form-control" id="option1" name="option1" value="{{ question.option1 }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="option2">Option 2:</label>
+                                <input type="text" class="form-control" id="option2" name="option2" value="{{ question.option2 }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="option3">Option 3:</label>
+                                <input type="text" class="form-control" id="option3" name="option3" value="{{ question.option3 }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="option4">Option 4:</label>
+                                <input type="text" class="form-control" id="option4" name="option4" value="{{ question.option4 }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="correct_answer">Correct Answer:</label>
+                                <input type="text" class="form-control" id="correct_answer" name="correct_answer" value="{{ question.correct_answer }}" required>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="question_course">Course:</label>
+                                <input type="text" class="form-control" id="question_course" name="question_course" value="{{ question.course }}" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info">Modify Question</button>
+                    </form>   
+                    <br />
+                    <!-- Redirect to the admin page after modification -->
+                    <a href="{% url 'admin_view' %}">Back to Admin Page</a>           
+            </div>            
+        </div>
+    </div> 
+</div>            
+{% endblock content %}

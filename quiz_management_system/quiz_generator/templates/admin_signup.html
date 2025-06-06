@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Portal - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #224abe;
+            --accent-color: #f6c23e;
+            --success-color: #1cc88a;
+            --background-color: #f8f9fc;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--background-color) 0%, #e8f0fe 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 40px 0;
+        }
+        
+        .quiz-portal-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .card-left {
+            background: linear-gradient(135deg, var(--success-color) 0%, #159a65 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            height: 100%;
+        }
+        
+        .card-left::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1440' height='560' preserveAspectRatio='none' viewBox='0 0 1440 560'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1001%26quot%3b)' fill='none'%3e%3crect width='1440' height='560' x='0' y='0' fill='rgba(28, 200, 138, 1)'%3e%3c/rect%3e%3cpath d='M0%2c665.515C115.112%2c664.397%2c222.681%2c606.228%2c320.778%2c549.203C417.834%2c492.832%2c521.439%2c440.019%2c575.515%2c343.071C629.693%2c245.928%2c623.605%2c130.724%2c620.148%2c20.471C616.693%2c-89.732%2c622.317%2c-208.246%2c560.639%2c-301.247C498.693%2c-394.657%2c387.363%2c-440.599%2c282.936%2c-484.354C185.811%2c-524.739%2c85.239%2c-543.983%2c-18.074%2c-544.825C-125.291%2c-545.704%2c-232.691%2c-539.021%2c-330.233%2c-495.035C-427.342%2c-451.22%2c-512.124%2c-384.765%2c-567.736%2c-296.007C-623.438%2c-207.068%2c-634.714%2c-103.648%2c-645.859%2c0.446C-656.717%2c102.233%2c-678.474%2c207.845%2c-637.053%2c301.886C-595.546%2c396.091%2c-513.513%2c470.181%2c-427.606%2c523.177C-338.975%2c577.855%2c-116.503%2c666.647%2c0%2c665.515' fill='%2318a374'%3e%3c/path%3e%3cpath d='M1440 926.096C1517.918 916.41 1582.704 866.64 1645.17 823.83 1707.618 781.034 1764.233 735.291 1804.947 673.467 1845.11 612.523 1866.641 543.791 1881.512 473.01 1896.372 402.27 1905.201 328.586 1885.2 260.044 1865.052 191.039 1814.543 137.878 1766.885 82.58 1722.524 31.345 1686.078-27.231 1622.61-64.742 1557.925-102.958 1478.354-104.407 1405.115-113.302 1318.631-123.849 1229.13-145.414 1148.676-113.435 1066.86-80.993 992.186-19.33 933.604 49.302 877.717 115.025 818.78 188.075 782.69 273.078 764.118 356.843 745.593 440.468 768.72 526.136 794.463 608.62 819.908 690.159 863.237 764.269 919.295 824.933 975.773 886.07 1040.073 936.662 1117.387 953.872 1191.303 970.325 1267.433 996.453 1342.354 984.33 1359.936 981.474 1377.49 978.498 1395.035 975.653 1414.354 972.51 1434.354 939.957 1440 926.096' fill='%2320eda0'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1001'%3e%3crect width='1440' height='560' fill='white'%3e%3c/rect%3e%3c/mask%3e%3c/defs%3e%3c/svg%3e");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.2;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature-icon {
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature {
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .feature h5 {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .signup-form-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+        }
+        
+        .btn-signup {
+            background: linear-gradient(135deg, var(--success-color) 0%, #159a65 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(28, 200, 138, 0.4);
+        }
+        
+        .btn-signup:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(28, 200, 138, 0.6);
+            background: linear-gradient(135deg, #159a65 0%, var(--success-color) 100%);
+            color: white;
+        }
+        
+        .form-control {
+            border-radius: 30px;
+            padding: 12px 20px;
+            height: auto;
+            background-color: #f8f9fc;
+            border: 1px solid #e3e6f0;
+        }
+        
+        .form-control:focus {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.2rem rgba(28, 200, 138, 0.25);
+        }
+        
+        .signup-welcome {
+            margin-bottom: 30px;
+        }
+        
+        .signup-welcome h2 {
+            font-weight: 700;
+            color: #333333;
+        }
+        
+        .signup-welcome p {
+            color: #858796;
+        }
+        
+        .input-group-text {
+            background-color: transparent;
+            border-right: none;
+            color: #6e707e;
+        }
+        
+        .login-link {
+            color: var(--success-color);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .login-link:hover {
+            color: #159a65;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+        
+        .alert-danger {
+            border-left-color: #e74a3b;
+        }
+        
+        .form-floating {
+            margin-bottom: 20px;
+        }
+        
+        .form-floating label {
+            padding-left: 20px;
+        }
+        
+        .form-floating>.form-control {
+            padding-left: 20px;
+        }
+        
+        .form-select {
+            border-radius: 30px;
+            padding: 12px 20px;
+            height: auto;
+            background-color: #f8f9fc;
+            border: 1px solid #e3e6f0;
+        }
+        
+        .form-select:focus {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 0.2rem rgba(28, 200, 138, 0.25);
+        }
+
+        @media (max-width: 991.98px) {
+            .card-left {
+                padding: 30px;
+            }
+            
+            .signup-form-container {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 767.98px) {
+            .card-left {
+                display: none;
+            }
+            
+            body {
+                padding: 20px 0;
+            }
+        }
+    </style>
+    <script>
+        // This prevents form resubmission when page is refreshed
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+    </script>
+</head>
+<body>
+    <div class="container quiz-portal-container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="row g-0">
+                        <!-- Left side - Features -->
+                        <div class="col-md-6 d-none d-md-block">
+                            <div class="card-left">
+                                <div class="logo">
+                                    <i class="fas fa-user-plus me-2"></i>Join Us
+                                </div>
+                                
+                                <p class="mb-5">Create your account and start your journey with our Learning Management System.</p>
+                                
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-chalkboard-teacher"></i>
+                                    </div>
+                                    <h5>Role-Based Access</h5>
+                                    <p>Sign up as a student to take quizzes or as a professor to create and manage them.</p>
+                                </div>
+                                
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-clipboard-list"></i>
+                                    </div>
+                                    <h5>Course Management</h5>
+                                    <p>Add your courses and access quizzes specifically designed for your curriculum.</p>
+                                </div>
+                                
+                                <div class="feature">
+                                    <div class="feature-icon">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <h5>Secure Account</h5>
+                                    <p>Create a secure account with customized permissions based on your role.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right side - Signup Form -->
+                        <div class="col-md-6">
+                            <div class="signup-form-container">
+                                <div class="signup-welcome text-center">
+                                    <h2>Create Account</h2>
+                                    <p>Fill in your details to get started</p>
+                                </div>
+                                
+                                <!-- Display error messages -->
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }} mb-4" role="alert">
+                                            <i class="fas fa-exclamation-circle me-2"></i> {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                                
+                                <form method="post" id="signupForm" autocomplete="off">
+                                    {% csrf_token %}
+                                    
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                                        <label for="username"><i class="fas fa-user me-2"></i>Username</label>
+                                    </div>
+                                    
+                                    <div class="form-floating mb-3">
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                                        <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
+                                    </div>
+                                    
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="user_role" name="user_role" required>
+                                            <option value="" selected disabled>Select a role</option>
+                                            <option value="user">User</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                        <label for="user_role"><i class="fas fa-user-tag me-2"></i>User Role</label>
+                                    </div>
+                                    
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="user_type" name="user_type" required>
+                                            <option value="" selected disabled>Select a type</option>
+                                            <option value="student">Student</option>
+                                            <option value="professor">Professor</option>
+                                        </select>
+                                        <label for="user_type"><i class="fas fa-user-graduate me-2"></i>User Type</label>
+                                    </div>
+                                    
+                                    <div class="form-floating mb-4">
+                                        <input type="text" class="form-control" id="courses" name="courses" 
+                                            placeholder="Courses (comma separated)">
+                                        <label for="courses"><i class="fas fa-book me-2"></i>Courses (comma separated)</label>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2 mt-4">
+                                        <button type="submit" class="btn btn-signup py-3">
+                                            Create Account <i class="fas fa-arrow-right ms-2"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                                <div class="text-center mt-4">
+                                    <p>Already have an account? <a href="{% url 'login' %}" class="login-link">Log in</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Execute when page loads - reset the form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reset the signup form
+            document.getElementById('signupForm').reset();
+        });
+        
+        // Add event listener for page refresh (F5 or browser refresh button)
+        window.addEventListener('pageshow', function(event) {
+            // Check if the page is being shown after navigating back to it
+            if (event.persisted) {
+                // Reset the form if user navigated back to this page
+                document.getElementById('signupForm').reset();
+            }
+        });
+        
+        // Convert comma-separated courses to JSON array before submission
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            const coursesInput = document.getElementById('courses');
+            const coursesValue = coursesInput.value;
+            
+            if (coursesValue.trim()) {
+                // Convert comma-separated list to array and then to JSON string
+                const coursesArray = coursesValue.split(',').map(course => course.trim());
+                coursesInput.value = JSON.stringify(coursesArray);
+            } else {
+                coursesInput.value = '[]';  // Empty array as JSON
+            }
+        });
+    </script>
+</body>
+</html>

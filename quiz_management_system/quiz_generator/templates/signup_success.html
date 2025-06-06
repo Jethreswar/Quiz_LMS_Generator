@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Successful</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --success-color: #1cc88a;
+            --background-color: #f8f9fc;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--background-color) 0%, #e8f0fe 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+        
+        .success-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+        
+        .success-message {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+        
+        .redirect-text {
+            color: #858796;
+            margin-bottom: 30px;
+        }
+        
+        .progress {
+            height: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, var(--success-color) 0%, #159a65 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(28, 200, 138, 0.4);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        
+        <div class="success-message">
+            {{ success_message }}
+        </div>
+        
+        <p class="redirect-text">You will be redirected to the login page in <span id="countdown">3</span> seconds...</p>
+        
+        <div class="progress">
+            <div class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+        </div>
+        
+        <a href="{% url 'login' %}" class="btn-login">
+            <i class="fas fa-sign-in-alt me-2"></i> Go to Login
+        </a>
+    </div>
+    
+    <script>
+        // Set up countdown and progress bar
+        let secondsLeft = 3;
+        let progressBar = document.querySelector('.progress-bar');
+        let countdownDisplay = document.getElementById('countdown');
+        
+        // Update progress bar and countdown every second
+        let interval = setInterval(function() {
+            secondsLeft--;
+            countdownDisplay.textContent = secondsLeft;
+            
+            // Update progress bar width
+            let progressPercentage = (3 - secondsLeft) / 3 * 100;
+            progressBar.style.width = progressPercentage + '%';
+            
+            if (secondsLeft <= 0) {
+                clearInterval(interval);
+                window.location.href = "{% url 'login' %}";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

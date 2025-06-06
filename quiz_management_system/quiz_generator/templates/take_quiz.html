@@ -1,0 +1,831 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<div class="quiz-container">
+    <!-- Top Navigation Bar -->
+    <nav class="quiz-navbar navbar navbar-expand-lg navbar-dark bg-primary shadow-lg fixed-top">
+        <div class="container-fluid px-4">
+            <div class="navbar-brand d-flex align-items-center">
+                <i class="fas fa-graduation-cap me-2"></i>
+                <span class="fw-bold">Quiz Portal</span>
+            </div>
+            
+            <div class="d-flex align-items-center text-white">
+                <div class="me-4 d-none d-md-block">
+                    <small class="text-white-50">Course:</small>
+                    <span class="fw-semibold">{{ quiz.course }}</span>
+                </div>
+                <div class="me-4">
+                    <small class="text-white-50">Time:</small>
+                    <span id="timer" class="fw-bold fs-5 text-warning">{{ quiz_duration }}:00</span>
+                </div>
+                <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#helpModal">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="quiz-content">
+        <div class="container-fluid p-0">
+            <div class="row g-0">
+                <!-- Sidebar - Question Navigation -->
+                <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+                    <div class="quiz-sidebar">
+                        <div class="sidebar-header p-3 border-bottom">
+                            <h6 class="mb-0 fw-bold text-primary">
+                                <i class="fas fa-list-ol me-2"></i>Questions
+                            </h6>
+                        </div>
+                        <div class="sidebar-content p-3">
+                            <div class="question-grid" id="question-navigation">
+                                {% for question in questions %}
+                                <button type="button" class="question-nav-item {% if forloop.first %}active{% endif %}" 
+                                        data-question="{{ forloop.counter }}" title="Question {{ forloop.counter }}">
+                                    <span class="question-number">{{ forloop.counter }}</span>
+                                    <div class="question-status">
+                                        <i class="fas fa-circle status-icon"></i>
+                                    </div>
+                                </button>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Progress Summary -->
+                            <div class="progress-summary mt-4 p-3 bg-light rounded">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted">Progress</small>
+                                    <span id="progress-text" class="fw-bold">1/{{ questions|length }}</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" id="main-progress" style="width: 0%"></div>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="legend-item d-flex align-items-center mb-1">
+                                        <div class="legend-color bg-success me-2"></div>
+                                        <small>Answered</small>
+                                    </div>
+                                    <div class="legend-item d-flex align-items-center mb-1">
+                                        <div class="legend-color bg-primary me-2"></div>
+                                        <small>Current</small>
+                                    </div>
+                                    <div class="legend-item d-flex align-items-center">
+                                        <div class="legend-color bg-light border me-2"></div>
+                                        <small>Unanswered</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Question Area -->
+                <div class="col-lg-9 col-xl-10">
+                    <div class="question-area">
+                        {% if messages %}
+                        <div class="alert-container p-3">
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if questions %}
+                        <form method="post" id="quizForm" class="h-100 d-flex flex-column">
+                            {% csrf_token %}
+                            
+                            <!-- Question Content -->
+                            <div class="question-content flex-grow-1 p-4">
+                                {% for question in questions %}
+                                <div class="question-slide {% if not forloop.first %}d-none{% endif %}" 
+                                     id="question-{{ forloop.counter }}" data-question-id="{{ question.id }}">
+                                    
+                                    <!-- Question Header -->
+                                    <div class="question-header mb-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div>
+                                                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                                                    Question {{ forloop.counter }}
+                                                </span>
+                                                <span class="badge bg-secondary ms-2 px-3 py-2 rounded-pill d-none d-md-inline">
+                                                    {{ quiz.course }}
+                                                </span>
+                                            </div>
+                                            <div class="text-end">
+                                                <small class="text-muted d-block">{{ forloop.counter }} of {{ questions|length }}</small>
+                                                <div class="progress mt-1" style="width: 100px; height: 4px;">
+                                                    <div class="progress-bar bg-success" id="main-progress" style="width: 0%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Question Text -->
+                                    <div class="question-text-container mb-5">
+                                        <div class="question-text p-4 bg-light border-start border-primary border-5 rounded-end">
+                                            <h5 class="question-text-content mb-0">{{ question.question }}</h5>
+                                        </div>
+                                    </div>
+
+                                    <!-- Answer Options -->
+                                    <div class="options-container">
+                                        <div class="row g-3">
+                                            <div class="col-12">
+                                                <div class="option-wrapper">
+                                                    <input type="radio" class="option-input" 
+                                                           id="option1_{{ question.id }}" 
+                                                           name="answer_{{ question.id }}" 
+                                                           value="option1" required>
+                                                    <label class="option-label" for="option1_{{ question.id }}">
+                                                        <div class="option-content">
+                                                            <div class="option-indicator">A</div>
+                                                            <div class="option-text">{{ question.option1 }}</div>
+                                                            <div class="option-check">
+                                                                <i class="fas fa-check"></i>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-12">
+                                                <div class="option-wrapper">
+                                                    <input type="radio" class="option-input" 
+                                                           id="option2_{{ question.id }}" 
+                                                           name="answer_{{ question.id }}" 
+                                                           value="option2" required>
+                                                    <label class="option-label" for="option2_{{ question.id }}">
+                                                        <div class="option-content">
+                                                            <div class="option-indicator">B</div>
+                                                            <div class="option-text">{{ question.option2 }}</div>
+                                                            <div class="option-check">
+                                                                <i class="fas fa-check"></i>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-12">
+                                                <div class="option-wrapper">
+                                                    <input type="radio" class="option-input" 
+                                                           id="option3_{{ question.id }}" 
+                                                           name="answer_{{ question.id }}" 
+                                                           value="option3" required>
+                                                    <label class="option-label" for="option3_{{ question.id }}">
+                                                        <div class="option-content">
+                                                            <div class="option-indicator">C</div>
+                                                            <div class="option-text">{{ question.option3 }}</div>
+                                                            <div class="option-check">
+                                                                <i class="fas fa-check"></i>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-12">
+                                                <div class="option-wrapper">
+                                                    <input type="radio" class="option-input" 
+                                                           id="option4_{{ question.id }}" 
+                                                           name="answer_{{ question.id }}" 
+                                                           value="option4" required>
+                                                    <label class="option-label" for="option4_{{ question.id }}">
+                                                        <div class="option-content">
+                                                            <div class="option-indicator">D</div>
+                                                            <div class="option-text">{{ question.option4 }}</div>
+                                                            <div class="option-check">
+                                                                <i class="fas fa-check"></i>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Bottom Navigation -->
+                            <div class="quiz-footer border-top bg-white p-4">
+                                <div class="container-fluid">
+                                    <div class="row align-items-center">
+                                        <div class="col-6 col-md-4">
+                                            <button type="button" id="prev-btn" class="btn btn-outline-secondary px-4 disabled">
+                                                <i class="fas fa-chevron-left me-2"></i>
+                                                <span class="d-none d-sm-inline">Previous</span>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="col-6 col-md-4 text-center d-block d-lg-none">
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#questionNavModal">
+                                                <i class="fas fa-list me-1"></i>
+                                                <span id="mobile-progress">1/{{ questions|length }}</span>
+                                            </button>
+                                        </div>
+                                        
+                                        <div class="col-12 col-md-4 text-end mt-3 mt-md-0">
+                                            <button type="button" id="next-btn" class="btn btn-primary px-4 me-2">
+                                                <span class="d-none d-sm-inline">Next</span>
+                                                <i class="fas fa-chevron-right ms-2"></i>
+                                            </button>
+                                            <button type="submit" id="submit-btn" class="btn btn-success px-4 d-none">
+                                                <i class="fas fa-paper-plane me-2"></i>Submit Quiz
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        {% else %}
+                        <!-- No Questions State -->
+                        <div class="no-questions-state text-center p-5">
+                            <div class="empty-state-icon mb-4">
+                                <i class="fas fa-clipboard-question text-muted" style="font-size: 4rem;"></i>
+                            </div>
+                            <h3 class="text-muted mb-3">No Questions Available</h3>
+                            <p class="text-muted mb-4">This quiz doesn't have any questions yet. Please contact your instructor.</p>
+                            <a href="{% url 'user_view' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Return to Dashboard
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile Question Navigation Modal -->
+<div class="modal fade" id="questionNavModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-list-ol me-2"></i>Question Navigation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mobile-question-grid" id="mobile-question-nav">
+                    {% for question in questions %}
+                    <button type="button" class="mobile-question-item {% if forloop.first %}active{% endif %}" 
+                            data-question="{{ forloop.counter }}" data-bs-dismiss="modal">
+                        <span class="number">{{ forloop.counter }}</span>
+                        <div class="status">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-question-circle me-2"></i>Quiz Instructions
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="instruction-item mb-3">
+                    <h6><i class="fas fa-clock text-warning me-2"></i>Time Management</h6>
+                    <p class="text-muted small mb-0">Keep an eye on the timer in the top navigation. The quiz will auto-submit when time runs out.</p>
+                </div>
+                <div class="instruction-item mb-3">
+                    <h6><i class="fas fa-mouse-pointer text-primary me-2"></i>Navigation</h6>
+                    <p class="text-muted small mb-0">Use the Previous/Next buttons or click on question numbers in the sidebar to navigate.</p>
+                </div>
+                <div class="instruction-item mb-3">
+                    <h6><i class="fas fa-check-circle text-success me-2"></i>Answering</h6>
+                    <p class="text-muted small mb-0">Select one option for each question. You can change your answer before submitting.</p>
+                </div>
+                <div class="instruction-item">
+                    <h6><i class="fas fa-paper-plane text-info me-2"></i>Submission</h6>
+                    <p class="text-muted small mb-0">Click "Submit Quiz" when you're done. Make sure all questions are answered.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Base Styles */
+.quiz-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.quiz-navbar {
+    z-index: 1030;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+}
+
+.quiz-content {
+    margin-top: 76px;
+    height: calc(100vh - 76px);
+}
+
+/* Sidebar Styles */
+.quiz-sidebar {
+    height: 100%;
+    background: white;
+    border-right: 1px solid #e9ecef;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+}
+
+.sidebar-header {
+    background: #f8f9fa;
+}
+
+.question-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+    gap: 8px;
+}
+
+.question-nav-item {
+    position: relative;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.question-nav-item:hover {
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.2);
+}
+
+.question-nav-item.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.question-nav-item.answered {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.question-number {
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.question-status {
+    margin-top: 2px;
+}
+
+.status-icon {
+    font-size: 0.6rem;
+}
+
+.progress-summary {
+    border: 1px solid #e9ecef;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+/* Question Area Styles */
+.question-area {
+    height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.question-slide {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.question-text-container {
+    max-width: 800px;
+}
+
+.question-text {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-left-width: 4px !important;
+}
+
+.question-text-content {
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+/* Option Styles */
+.option-wrapper {
+    position: relative;
+}
+
+.option-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.option-label {
+    display: block;
+    cursor: pointer;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.option-label:hover {
+    border-color: #007bff;
+    box-shadow: 0 4px 15px rgba(0,123,255,0.1);
+    transform: translateY(-1px);
+}
+
+.option-input:checked + .option-label {
+    border-color: #007bff;
+    background: #f8f9ff;
+    box-shadow: 0 4px 20px rgba(0,123,255,0.2);
+}
+
+.option-content {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    position: relative;
+}
+
+.option-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-right: 16px;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.option-input:checked + .option-label .option-indicator {
+    background: #007bff;
+    color: white;
+}
+
+.option-text {
+    flex: 1;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #2c3e50;
+}
+
+.option-check {
+    margin-left: 16px;
+    color: #007bff;
+    font-size: 1.2rem;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+.option-input:checked + .option-label .option-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Footer Styles */
+.quiz-footer {
+    border-top: 2px solid #e9ecef !important;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+/* Mobile Styles */
+.mobile-question-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+.mobile-question-item {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mobile-question-item:hover {
+    border-color: #007bff;
+}
+
+.mobile-question-item.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.mobile-question-item.answered {
+    background: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.mobile-question-item .number {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.mobile-question-item .status i {
+    font-size: 0.7rem;
+}
+
+/* Responsive Design */
+@media (max-width: 991.98px) {
+    .quiz-content {
+        margin-top: 70px;
+        height: calc(100vh - 70px);
+    }
+    
+    .question-content {
+        padding: 20px !important;
+    }
+    
+    .option-content {
+        padding: 12px 16px !important;
+    }
+    
+    .option-indicator {
+        width: 35px;
+        height: 35px;
+        margin-right: 12px;
+    }
+    
+    .quiz-footer {
+        padding: 16px !important;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .quiz-navbar .container-fluid {
+        padding: 0 16px;
+    }
+    
+    .question-text {
+        padding: 16px !important;
+    }
+    
+    .question-text-content {
+        font-size: 1.1rem !important;
+    }
+    
+    .option-text {
+        font-size: 0.95rem !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .quiz-content {
+        margin-top: 65px;
+        height: calc(100vh - 65px);
+    }
+    
+    .question-content {
+        padding: 16px !important;
+    }
+    
+    .option-content {
+        padding: 10px 12px !important;
+    }
+    
+    .option-indicator {
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+        margin-right: 10px;
+    }
+    
+    .mobile-question-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* Timer Warning States */
+.timer-warning {
+    animation: pulse 1s infinite;
+}
+
+.timer-critical {
+    animation: flash 0.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes flash {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.5; }
+}
+
+/* Empty State */
+.no-questions-state {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-state-icon {
+    opacity: 0.6;
+}
+
+/* Instruction Items */
+.instruction-item h6 {
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+/* Loading States */
+.btn.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+    // Initialize variables
+    let quizTimer;
+    let totalSeconds = parseInt("{{ time_limit_seconds }}", 10);
+    let currentQuestionIndex = 0;
+    // If you want to use questions_json, ensure it's safe and properly escaped
+    // const questions = JSON.parse('{{ questions_json|escapejs }}');
+
+    document.addEventListener('DOMContentLoaded', function() {
+        startTimer();
+
+        // Show only the first question
+        showQuestion(currentQuestionIndex);
+
+        // Navigation buttons
+        const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const questionSlides = document.querySelectorAll('.question-slide');
+        const navItems = document.querySelectorAll('.question-nav-item');
+        const progressText = document.getElementById('progress-text');
+        const mainProgress = document.getElementById('main-progress');
+        const mobileProgress = document.getElementById('mobile-progress');
+
+        function updateProgress() {
+            progressText.textContent = (currentQuestionIndex + 1) + '/' + questionSlides.length;
+            if (mobileProgress) {
+                mobileProgress.textContent = (currentQuestionIndex + 1) + '/' + questionSlides.length;
+            }
+            const percent = ((currentQuestionIndex + 1) / questionSlides.length) * 100;
+            mainProgress.style.width = percent + '%';
+        }
+
+        function showQuestion(index) {
+            questionSlides.forEach((slide, i) => {
+                slide.classList.toggle('d-none', i !== index);
+            });
+            navItems.forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+            prevBtn.classList.toggle('disabled', index === 0);
+            nextBtn.classList.toggle('d-none', index === questionSlides.length - 1);
+            submitBtn.classList.toggle('d-none', index !== questionSlides.length - 1);
+            updateProgress();
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                if (currentQuestionIndex < questionSlides.length - 1) {
+                    currentQuestionIndex++;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+        }
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                if (currentQuestionIndex > 0) {
+                    currentQuestionIndex--;
+                    showQuestion(currentQuestionIndex);
+                }
+            });
+        }
+        navItems.forEach((item, i) => {
+            item.addEventListener('click', function() {
+                currentQuestionIndex = i;
+                showQuestion(currentQuestionIndex);
+            });
+        });
+
+        // Mobile navigation
+        const mobileNavItems = document.querySelectorAll('.mobile-question-item');
+        mobileNavItems.forEach((item, i) => {
+            item.addEventListener('click', function() {
+                currentQuestionIndex = i;
+                showQuestion(currentQuestionIndex);
+            });
+        });
+
+        // Timer
+        function startTimer() {
+            updateTimerDisplay();
+            quizTimer = setInterval(function() {
+                totalSeconds--;
+                updateTimerDisplay();
+                if (totalSeconds <= 0) {
+                    clearInterval(quizTimer);
+                    alert("Time's up! Submitting your quiz now.");
+                    document.getElementById('quizForm').submit();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            const timerElem = document.getElementById('timer');
+            if (timerElem) {
+                timerElem.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (totalSeconds <= 30) {
+                    timerElem.classList.add('timer-critical');
+                } else if (totalSeconds <= 60) {
+                    timerElem.classList.add('timer-warning');
+                }
+            }
+        }
+
+        // Form submission
+        const quizForm = document.getElementById('quizForm');
+        if (quizForm) {
+            quizForm.addEventListener('submit', function(e) {
+                // Optionally, add custom validation or AJAX here
+                // e.preventDefault();
+                // submitQuiz();
+            });
+        }
+
+        updateProgress();
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %} 
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Welcome to your User Page, {{ username }}!</h2>
+
+    <div class="text-right">
+        <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
+    </div> 
+    <br />
+
+    <!-- Messages display -->
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Available Quizzes Section -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Your Assigned Quizzes</h5>
+        </div>
+        <div class="card-body">
+            {% if available_quizzes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Questions</th>
+                                <th>Duration</th>
+                                <th>Expires</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for quiz in available_quizzes %}
+                            <tr>
+                                <td>{{ quiz.course }}</td>
+                                <td>{{ quiz.num_questions }}</td>
+                                <td>{{ quiz.quiz_duration }} minutes</td>
+                                <td>{{ quiz.quiz_expire_date }}</td>
+                                <td>
+                                    <a href="{% url 'take_quiz' quiz.id %}" class="btn btn-success btn-sm">
+                                        Start Quiz
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info mb-0">
+                    <p class="mb-0">You have no assigned quizzes at this time.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Your course information section -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Your Courses</h5>
+        </div>
+        <div class="card-body">
+            {% if user_courses %}
+                <ul class="list-group list-group-flush">
+                {% for course in user_courses %}
+                    <li class="list-group-item">{{ course }}</li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-info mb-0">
+                    <p class="mb-0">You are not enrolled in any courses.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Quiz history section -->
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Quiz History</h5>
+        </div>
+        <div class="card-body">
+            {% if quiz_history %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in quiz_history %}
+                            <tr>
+                                <td>{{ item.course }}</td>
+                                <td>{{ item.score }}%</td>
+                                <td>{{ item.quiz_date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info mb-0">
+                    <p class="mb-0">You haven't completed any quizzes yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>             
+
+<!-- Add debugging info in a hidden div if needed -->
+<div style="display: none;" id="debug-info">
+    User ID: {{ user.id }}
+    Username: {{ username }}
+    Available Quizzes: {{ available_quizzes|length }}
+</div>
+
+<script>
+    // Any JavaScript you need
+</script>
+{% endblock content %}
