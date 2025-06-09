@@ -1,132 +1,584 @@
-{% extends "base.html" %} 
-
-{% block content %}
-<div class="container mt-5">
-    <h2>Welcome to your User Page, {{ username }}!</h2>
-
-    <div class="text-right">
-        <a href="{% url 'logout' %}" class="btn btn-primary">Logout</a>
-    </div> 
-    <br />
-
-    <!-- Messages display -->
-    {% if messages %}
-    <div class="messages mb-4">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}" role="alert">
-            {{ message }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Portal - Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f8f9fc;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--secondary-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background: #4e73df;
+            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-divider {
+            height: 0;
+            margin: 1rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Content Area Styling */
+        .content {
+            margin-left: 250px;
+            padding: 1.5rem;
+            flex-grow: 1;
+            transition: all 0.3s;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Card Styling */
+        .card {
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            border: none;
+            border-radius: 0.35rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: #f8f9fc;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e3e6f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h6 {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #4e73df;
+            margin: 0;
+        }
+        
+        /* Quiz Card Styling */
+        .quiz-card {
+            transition: transform 0.2s;
+        }
+        
+        .quiz-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .quiz-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .quiz-status {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        /* Top Navbar */
+        .topbar {
+            height: 4.375rem;
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 1.5rem;
+            margin-left: 250px;
+        }
+        
+        .topbar-divider {
+            width: 0;
+            border-right: 1px solid #e3e6f0;
+            height: calc(4.375rem - 2rem);
+            margin: auto 1rem;
+        }
+        
+        .user-dropdown {
+            position: relative;
+        }
+        
+        .user-dropdown .dropdown-toggle {
+            color: #d1d3e2;
+            text-decoration: none;
+        }
+        
+        .user-dropdown .dropdown-menu {
+            position: absolute;
+            right: 0;
+            left: auto;
+            width: 15rem;
+        }
+        
+        /* Table Styling */
+        .table {
+            border-radius: 0.35rem;
+            overflow: hidden;
+        }
+        
+        .table thead th {
+            background-color: #f8f9fc;
+            color: #6e707e;
+            font-weight: 700;
+            border-bottom: 2px solid #e3e6f0;
+        }
+        
+        /* No Quiz Available */
+        .no-quiz {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6e707e;
+        }
+        
+        .no-quiz i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #d1d3e2;
+        }
+        
+        /* Stats Cards */
+        .stats-card {
+            border-left: 4px solid;
+            border-radius: 0.35rem;
+        }
+        
+        .stats-card.primary {
+            border-left-color: #4e73df;
+        }
+        
+        .stats-card.success {
+            border-left-color: #1cc88a;
+        }
+        
+        .stats-card.info {
+            border-left-color: #36b9cc;
+        }
+        
+        .stats-card.warning {
+            border-left-color: #f6c23e;
+        }
+        
+        .stats-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .stats-card .text-xs {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .stats-card .stats-icon {
+            font-size: 2rem;
+            opacity: 0.3;
+        }
+        
+        /* Progress Bar */
+        .progress-sm {
+            height: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-250px);
+            }
+            
+            .content, .topbar {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .content.sidebar-open, .topbar.sidebar-open {
+                margin-left: 250px;
+                width: calc(100% - 250px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="sidebar-brand">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Quiz Portal</span>
+            </a>
         </div>
-        {% endfor %}
+        
+        <div class="sidebar-menu">
+            <div class="sidebar-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </div>
+            
+            <div class="sidebar-divider"></div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-book"></i>
+                <span>My Courses</span>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-clipboard-list"></i>
+                <span>My Quizzes</span>
+            </div>
+            
+            <div class="sidebar-divider"></div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Performance</span>
+            </div>
+            
+            <div class="sidebar-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+            
+            <div class="sidebar-divider"></div>
+            
+            <a href="{% url 'logout' %}" class="sidebar-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
     </div>
-    {% endif %}
     
-    <!-- Available Quizzes Section -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Your Assigned Quizzes</h5>
-        </div>
-        <div class="card-body">
-            {% if available_quizzes %}
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Course</th>
-                                <th>Questions</th>
-                                <th>Duration</th>
-                                <th>Expires</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for quiz in available_quizzes %}
-                            <tr>
-                                <td>{{ quiz.course }}</td>
-                                <td>{{ quiz.num_questions }}</td>
-                                <td>{{ quiz.quiz_duration }} minutes</td>
-                                <td>{{ quiz.quiz_expire_date }}</td>
-                                <td>
-                                    <a href="{% url 'take_quiz' quiz.id %}" class="btn btn-success btn-sm">
-                                        Start Quiz
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+    <!-- Top Navbar -->
+    <div class="topbar">
+        <button class="btn btn-link d-md-none" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Topbar Search -->
+        <form class="d-none d-sm-inline-block ms-auto">
+            <div class="input-group">
+                <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search">
+                <button class="btn btn-primary" type="button">
+                    <i class="fas fa-search fa-sm"></i>
+                </button>
+            </div>
+        </form>
+        
+        <div class="topbar-divider d-none d-sm-block"></div>
+        
+        <!-- User Information -->
+        <div class="user-dropdown dropdown">
+            <a class="dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="me-2 d-none d-lg-inline text-gray-600 small">{{ active_user.username }}</span>
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 2.5rem; height: 2.5rem;">
+                    <i class="fas fa-user"></i>
                 </div>
-            {% else %}
-                <div class="alert alert-info mb-0">
-                    <p class="mb-0">You have no assigned quizzes at this time.</p>
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <!-- Your course information section -->
-    <div class="card mb-4">
-        <div class="card-header bg-info text-white">
-            <h5 class="mb-0">Your Courses</h5>
-        </div>
-        <div class="card-body">
-            {% if user_courses %}
-                <ul class="list-group list-group-flush">
-                {% for course in user_courses %}
-                    <li class="list-group-item">{{ course }}</li>
-                {% endfor %}
-                </ul>
-            {% else %}
-                <div class="alert alert-info mb-0">
-                    <p class="mb-0">You are not enrolled in any courses.</p>
-                </div>
-            {% endif %}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow animated--grow-in">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cogs fa-sm fa-fw me-2 text-gray-400"></i> Settings</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-list fa-sm fa-fw me-2 text-gray-400"></i> Activity Log</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout</a></li>
+            </ul>
         </div>
     </div>
     
-    <!-- Quiz history section -->
-    <div class="card">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Quiz History</h5>
+    <!-- Content Area -->
+    <div class="content">
+        <div class="content-header">
+            <h1 class="h3 mb-0 text-gray-800">Student Dashboard</h1>
+            <p class="mb-0">Welcome back, {{ active_user.username }}!</p>
         </div>
-        <div class="card-body">
-            {% if quiz_history %}
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Course</th>
-                                <th>Score</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in quiz_history %}
-                            <tr>
-                                <td>{{ item.course }}</td>
-                                <td>{{ item.score }}%</td>
-                                <td>{{ item.quiz_date }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+        
+        <!-- Stats Row -->
+        <div class="row">
+            <!-- Total Quizzes -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card primary h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Quizzes</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ quizzes|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list stats-icon text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% else %}
-                <div class="alert alert-info mb-0">
-                    <p class="mb-0">You haven't completed any quizzes yet.</p>
+            </div>
+            
+            <!-- Courses -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card success h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    My Courses</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ active_user.courses|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-book stats-icon text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            {% endif %}
+            </div>
+            
+            <!-- Completed Quizzes -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card info h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Completed Quizzes</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ quiz_history|length }}</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle stats-icon text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Average Score -->
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card stats-card warning h-100">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Average Score</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    {% if quiz_history|length > 0 %}
+                                        {{ avg_score }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-star stats-icon text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- My Quizzes -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">My Upcoming Quizzes</h6>
+            </div>
+            <div class="card-body">
+                {% if quizzes %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Questions</th>
+                                    <th>Duration (min)</th>
+                                    <th>Expires</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in quizzes %}
+                                <tr>
+                                    <td>
+                                        <span class="fw-semibold">{{ quiz.course }}</span>
+                                    </td>
+                                    <td>{{ quiz.num_questions }}</td>
+                                    <td>{{ quiz.quiz_duration }}</td>
+                                    <td>{{ quiz.quiz_expire_date }}</td>
+                                    <td>
+                                        <a href="{% url 'take_quiz' quiz.id %}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-play-circle me-1"></i> Take Quiz
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="no-quiz">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h4>No quizzes available</h4>
+                        <p class="text-muted">You don't have any pending quizzes at the moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Quiz History -->
+        <div class="card shadow mb-4">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Quiz History</h6>
+            </div>
+            <div class="card-body">
+                {% if quiz_history %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Date</th>
+                                    <th>Score</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for history in quiz_history %}
+                                <tr>
+                                    <td>{{ history.quiz.course }}</td>
+                                    <td>{{ history.quiz_date }}</td>
+                                    <td>{{ history.score }}%</td>
+                                    <td>
+                                        <div class="progress progress-sm">
+                                            {% with score=history.score|default_if_none:0 %}
+                                                <div class="progress-bar bg-{% if score|floatformat:0 >= 80 %}success{% elif score|floatformat:0 >= 70 %}info{% elif score|floatformat:0 >= 60 %}warning{% else %}danger{% endif %}" 
+                                                    role="progressbar"
+                                                    aria-valuenow="{{ score|floatformat:0 }}" 
+                                                    aria-valuemin="0" 
+                                                    aria-valuemax="100">
+                                                </div>
+                                            {% endwith %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="no-quiz">
+                        <i class="fas fa-history"></i>
+                        <h4>No quiz history</h4>
+                        <p class="text-muted">You haven't completed any quizzes yet.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>             
-
-<!-- Add debugging info in a hidden div if needed -->
-<div style="display: none;" id="debug-info">
-    User ID: {{ user.id }}
-    Username: {{ username }}
-    Available Quizzes: {{ available_quizzes|length }}
-</div>
-
-<script>
-    // Any JavaScript you need
-</script>
-{% endblock content %}
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle sidebar toggle for mobile
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.querySelector('.sidebar');
+            const content = document.querySelector('.content');
+            const topbar = document.querySelector('.topbar');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    content.classList.toggle('sidebar-open');
+                    topbar.classList.toggle('sidebar-open');
+                });
+            }
+            
+            // Fix the average score calculation - using the Django template variable directly can cause issues
+            // Instead, we'll check if the avg_score is already provided by the view
+            const avgScoreElement = document.querySelector('.stats-card.warning .h5');
+            if (avgScoreElement && avgScoreElement.textContent.trim() === 'N/A') {
+                // Only calculate if not already provided
+                try {
+                    // Use a safer approach with JSON script tag
+                    const quizHistoryData = document.getElementById('quiz-history-data');
+                    if (quizHistoryData) {
+                        const quizHistory = JSON.parse(quizHistoryData.textContent);
+                        if (quizHistory && quizHistory.length > 0) {
+                            let totalScore = 0;
+                            quizHistory.forEach(history => {
+                                totalScore += history.score;
+                            });
+                            avgScoreElement.textContent = (totalScore / quizHistory.length).toFixed(1) + '%';
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error calculating average score:', e);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

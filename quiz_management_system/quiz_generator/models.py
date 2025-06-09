@@ -29,6 +29,11 @@ class Quiz(models.Model):
 class QuizHistory(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
     quiz_date = models.DateField(auto_now_add=True)
-    score = models.IntegerField()
-    num_correct = models.IntegerField()
-    num_wrong = models.IntegerField()    
+    score = models.FloatField(default=0)
+    num_correct = models.IntegerField(default=0)
+    num_wrong = models.IntegerField(default=0)
+    
+    def __str__(self):
+        if hasattr(self.quiz, 'student') and hasattr(self.quiz.student, 'username'):
+            return f"{self.quiz.student.username}'s {self.quiz.course} quiz on {self.quiz_date}"
+        return f"Quiz {self.quiz.id} on {self.quiz_date}"

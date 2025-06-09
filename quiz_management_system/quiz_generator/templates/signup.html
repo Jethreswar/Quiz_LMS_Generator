@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Portal - Sign Up</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #f8f9fc;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+        
+        .signup-card {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border: none;
+            border-radius: 0.35rem;
+            width: 100%;
+        }
+        
+        .signup-header {
+            padding: 1.5rem;
+            background-color: #fff;
+            border-bottom: 1px solid #e3e6f0;
+            text-align: center;
+        }
+        
+        .nav-tabs .nav-item {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--dark-color);
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .tab-content {
+            padding: 1.5rem;
+        }
+        
+        .signup-btn {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            width: 100%;
+            padding: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .signup-btn:hover {
+            background-color: #2e59d9;
+            border-color: #2653d4;
+        }
+        
+        .signup-footer {
+            padding: 1.5rem;
+            background-color: #f8f9fc;
+            border-top: 1px solid #e3e6f0;
+            text-align: center;
+        }
+        
+        .signup-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .signup-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .form-control {
+            padding: 0.75rem 1rem;
+        }
+        
+        .input-group-text {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .alert {
+            border-radius: 0.35rem;
+            margin-bottom: 1rem;
+        }
+        
+        /* Add styles for the title header */
+        .app-title {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .app-title h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-title p {
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+        
+        @media (max-width: 576px) {
+            .app-title h1 {
+                font-size: 2rem;
+            }
+            
+            .app-title p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Add the title header -->
+        <div class="app-title">
+            <h1><i class="fas fa-graduation-cap me-3"></i>Quiz Portal</h1>
+            <p>Create an account to access quizzes and track your progress</p>
+        </div>
+        
+        <div class="card signup-card">
+            <div class="signup-header">
+                <h4 class="text-gray-900"><i class="fas fa-graduation-cap me-2"></i>Quiz Portal</h4>
+                <p class="text-muted mb-0">Create your account</p>
+            </div>
+            
+            <!-- Signup Tabs -->
+            <ul class="nav nav-tabs" id="signupTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link {% if not is_admin_signup %}active{% endif %}" 
+                       id="student-tab" 
+                       data-bs-toggle="tab" 
+                       href="#student-content" 
+                       role="tab" 
+                       aria-controls="student-content" 
+                       aria-selected="{% if not is_admin_signup %}true{% else %}false{% endif %}">
+                        <i class="fas fa-user-graduate me-2"></i>Student
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link {% if is_admin_signup %}active{% endif %}" 
+                       id="admin-tab" 
+                       data-bs-toggle="tab" 
+                       href="#admin-content" 
+                       role="tab" 
+                       aria-controls="admin-content" 
+                       aria-selected="{% if is_admin_signup %}true{% else %}false{% endif %}">
+                        <i class="fas fa-user-shield me-2"></i>Admin
+                    </a>
+                </li>
+            </ul>
+            
+            <!-- Tab Content -->
+            <div class="tab-content" id="signupTabsContent">
+                <!-- Student Signup Form -->
+                <div class="tab-pane fade {% if not is_admin_signup %}show active{% endif %}" id="student-content" role="tabpanel" aria-labelledby="student-tab">
+                    <form method="post" action="{% url 'signup' %}">
+                        {% csrf_token %}
+                        <!-- Make sure these hidden fields have the correct values -->
+                        <input type="hidden" name="user_role" value="user">
+                        <input type="hidden" name="user_type" value="student">
+                        
+                        <!-- Display form errors -->
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Username field -->
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" name="username" class="form-control" id="id_username" placeholder="Enter username" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Password field -->
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password1" class="form-control" id="id_password1" placeholder="Enter password" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Password confirmation field -->
+                        <div class="mb-3">
+                            <label for="id_password2" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password2" class="form-control" id="id_password2" placeholder="Confirm password" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Courses field -->
+                        <div class="mb-3">
+                            <label for="id_courses" class="form-label">Courses (comma separated)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-book"></i></span>
+                                <input type="text" name="courses" class="form-control" id="id_courses" placeholder="e.g. Math101, Science202">
+                            </div>
+                        </div>
+                        
+                        <!-- Submit button -->
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary signup-btn">
+                                <i class="fas fa-user-plus me-2"></i>Sign Up as Student
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Admin Signup Form -->
+                <div class="tab-pane fade {% if is_admin_signup %}show active{% endif %}" id="admin-content" role="tabpanel" aria-labelledby="admin-tab">
+                    <form method="post" action="{% url 'admin_signup' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="role" value="admin">
+                        <input type="hidden" name="type" value="professor">
+                        
+                        <!-- Display form errors -->
+                        {% if form.errors and is_admin_signup %}
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <li>{{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Username field -->
+                        <div class="mb-3">
+                            <label for="admin_username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user-tie"></i></span>
+                                <input type="text" name="username" class="form-control" id="admin_username" placeholder="Enter username" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Password field -->
+                        <div class="mb-3">
+                            <label for="admin_password1" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password1" class="form-control" id="admin_password1" placeholder="Enter password" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Password confirmation field -->
+                        <div class="mb-3">
+                            <label for="admin_password2" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input type="password" name="password2" class="form-control" id="admin_password2" placeholder="Confirm password" required>
+                            </div>
+                        </div>
+                        
+                        <!-- Courses field -->
+                        <div class="mb-3">
+                            <label for="admin_courses" class="form-label">Courses (comma separated)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-book"></i></span>
+                                <input type="text" name="courses" class="form-control" id="admin_courses" placeholder="e.g. Math101, Science202">
+                            </div>
+                        </div>
+                        
+                        <!-- Submit button -->
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary signup-btn">
+                                <i class="fas fa-user-shield me-2"></i>Sign Up as Admin
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Signup Footer -->
+            <div class="signup-footer">
+                <p class="mb-0">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap tabs
+            const tabsElement = document.getElementById('signupTabs');
+            if (tabsElement) {
+                const tabs = new bootstrap.Tab(tabsElement);
+            }
+            
+            // Set up tab switching logic if needed
+            const studentTab = document.getElementById('student-tab');
+            const adminTab = document.getElementById('admin-tab');
+            
+            if (studentTab && adminTab) {
+                studentTab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.history.replaceState(null, null, "{% url 'signup' %}");
+                    bootstrap.Tab.getOrCreateInstance(this).show();
+                });
+                
+                adminTab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.history.replaceState(null, null, "{% url 'admin_signup' %}");
+                    bootstrap.Tab.getOrCreateInstance(this).show();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
